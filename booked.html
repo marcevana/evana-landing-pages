@@ -11,37 +11,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- Meta Pixel: loads ONLY after the visitor accepts marketing cookies (GDPR / UK PECR).
-     Replace [PIXEL ID]. Do not add the usual <noscript> pixel image: it would fire without consent. -->
+<!-- Tracking (Meta Pixel + GA4): consent-gated, see tracking.js -->
+<script src="tracking.js"></script>
 <script>
-const PIXEL_ID = "[PIXEL ID]";
-const CONSENT_KEY = "evana_cookie_consent";
-const CONSENT_MAX_AGE_DAYS = 365; // ask again after a year
-function loadPixel() {
-  if (window.fbq) return;
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-  document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', PIXEL_ID);
-  fbq('track', 'PageView');
-}
-function readConsent() {
-  try {
-    const c = JSON.parse(localStorage.getItem(CONSENT_KEY));
-    if (!c || Date.now() - c.ts > CONSENT_MAX_AGE_DAYS * 864e5) return null;
-    return c;
-  } catch (e) { return null; }
-}
-// Meta "Schedule" event: fires once per browser (reopening the email link doesn't count again)
-function trackSchedule() {
-  if (!window.fbq) return;
-  try { if (localStorage.getItem("evana_schedule_tracked")) return; } catch (e) {}
-  fbq("track", "Schedule");
-  try { localStorage.setItem("evana_schedule_tracked", String(Date.now())); } catch (e) {}
-}
-(function () { const c = readConsent(); if (c && c.marketing) { loadPixel(); trackSchedule(); } })();
+// Booked call: GA4 "book_appointment" + Meta "Schedule", once per browser (reopening the email link doesn't count again)
+evana.onConsent(function () {
+  evana.track("book_appointment", { method: "google_calendar" }, "Schedule", {}, { once: "schedule" });
+});
 </script>
 
 <style>
@@ -180,7 +156,7 @@ footer a{color:var(--paper)}
 <!-- Cookie consent -->
 <div class="cookie" id="cookie" role="region" aria-labelledby="cookie-h" hidden>
   <h2 class="cookie-h" id="cookie-h">Cookies<span class="tdot">.</span></h2>
-  <p>We'd like to use cookies from Meta to see how our ads perform and show you more relevant ads. We won't use them unless you say yes. You can change your mind any time under "Cookie settings" at the bottom of the page. <a href="https://www.evanadesigns.com/privacy-policy">Privacy policy</a></p>
+  <p>We'd like to use cookies from Google and Meta to measure visits to this page, see how our ads perform and show you more relevant ads. We won't use them unless you say yes. You can change your mind any time under "Cookie settings" at the bottom of the page. <a href="https://www.evanadesigns.com/privacy-policy">Privacy policy</a></p>
   <div class="cookie-btns">
     <button type="button" class="cbtn cbtn-yes" id="cookie-accept">Accept cookies</button>
     <button type="button" class="cbtn cbtn-no" id="cookie-reject">Reject cookies</button>
@@ -264,12 +240,9 @@ footer a{color:var(--paper)}
   function save(marketing) {
     try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ marketing: marketing, ts: Date.now(), v: 1 })); } catch (e) {}
     close();
-    if (marketing) { loadPixel(); trackSchedule(); return; }
-    if (window.fbq) fbq("consent", "revoke");
-    ["_fbp", "_fbc"].forEach(function (n) {
-      document.cookie = n + "=; Max-Age=0; path=/";
-      document.cookie = n + "=; Max-Age=0; path=/; domain=" + location.hostname.replace(/^www\./, ".");
-    });
+    if (marketing) { evana.load(); return; }
+    // Withdrawn after accepting: stop Meta + Google and clear their cookies
+    evana.revoke();
   }
   document.getElementById("cookie-accept").addEventListener("click", function () { save(true); });
   document.getElementById("cookie-reject").addEventListener("click", function () { save(false); });

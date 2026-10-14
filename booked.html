@@ -14,6 +14,12 @@
 <!-- Tracking (Meta Pixel + GA4): consent-gated, see tracking.js -->
 <script src="tracking.js"></script>
 <script>
+
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 // Booked call: GA4 "book_appointment" + Meta "Schedule", once per browser (reopening the email link doesn't count again)
 evana.onConsent(function () {
   evana.track("book_appointment", { method: "google_calendar" }, "Schedule", {}, { once: "schedule" });

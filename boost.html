@@ -20,6 +20,12 @@
 <script src="tracking.js"></script>
 <script>evana.onConsent(function () { evana.track("view_item", { currency: "USD", value: 199, items: [{ item_id: "best-seller-launch", item_name: "14-Day Best Seller Launch", price: 199 }] }, "ViewContent", { value: 199, currency: "USD", content_name: "14-Day Best Seller Launch", content_ids: ["best-seller-launch"], content_type: "product" }); });</script>
 
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
 <style>
 :root{
   /* Evana brand palette (Style Guide, Jan 2026) */

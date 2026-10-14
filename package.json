@@ -1,0 +1,14 @@
+{
+  "name": "evana-landing-pages",
+  "version": "1.0.0",
+  "description": "Evana Designs landing pages with Vercel Web Analytics",
+  "scripts": {
+    "build": "echo 'Static HTML - no build required'",
+    "lint": "echo 'No linter configured for static HTML'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  },
+  "devDependencies": {},
+  "private": true
+}
